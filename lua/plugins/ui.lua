@@ -24,11 +24,9 @@ return {
       -- set keymaps
       local keymap = vim.keymap
       keymap.set("n", "<leader>f", "<cmd>Telescope find_files<cr>", { desc = "Fuzzy find files" })
-      keymap.set("v", "<leader>g", "<cmd>Telescope grep_string<cr>", { desc = "Find string in files" })
-      keymap.set("n", "<leader>g", "<cmd>Telescope live_grep<cr>", { desc = "Live grep search" })
-      keymap.set("n", "<leader>b", "<cmd>Telescope buffers<cr>", { desc = "Select buffer" })
-      keymap.set("n", "<leader>R", "<cmd>Telescope lsp_references<cr>", { desc = "references for symbol" })
-      keymap.set("n", "<leader>t", "<cmd>Telescope<cr>", { desc = "Telescope Commands" })
+      keymap.set("v", "<leader>fg", "<cmd>Telescope grep_string<cr>", { desc = "Find string in files" })
+      keymap.set("n", "<leader>fg", "<cmd>Telescope live_grep<cr>", { desc = "Live grep search" })
+      keymap.set("n", "<leader>fR", "<cmd>Telescope lsp_references<cr>", { desc = "references for symbol" })
       keymap.set("v", "<leader>t", "<cmd>Telescope<cr>", { desc = "Telescope Commands" })
     end,
   },
