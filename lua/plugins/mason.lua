@@ -36,7 +36,7 @@ return {
           "clangd",
           "lua_ls",
           "bashls",
-          "deno",
+          "denols",
         },
       })
 
