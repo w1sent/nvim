@@ -5,84 +5,6 @@ local wk = require 'which-key'
 -- Helper functions
 -- ############################################
 
---- Send code to terminal with vim-slime
---- If an R terminal has been opend, this is in r_mode
---- and will handle python code via reticulate when sent
---- from a python chunk.
---- TODO: incorpoarate this into quarto-nvim plugin
---- such that QuartoRun functions get the same capabilities
---- TODO: figure out bracketed paste for reticulate python repl.
-local function send_cell()
-  if vim.b['quarto_is_r_mode'] == nil then
-    vim.fn['slime#send_cell']()
-    return
-  end
-  if vim.b['quarto_is_r_mode'] == true then
-    vim.g.slime_python_ipython = 0
-    local is_python = require('otter.tools.functions').is_otter_language_context 'python'
-    if is_python and not vim.b['reticulate_running'] then
-      vim.fn['slime#send']('reticulate::repl_python()' .. '\r')
-      vim.b['reticulate_running'] = true
-    end
-    if not is_python and vim.b['reticulate_running'] then
-      vim.fn['slime#send']('exit' .. '\r')
-      vim.b['reticulate_running'] = false
-    end
-    vim.fn['slime#send_cell']()
-  end
-end
-
---- Send code to terminal with vim-slime
---- If an R terminal has been opend, this is in r_mode
---- and will handle python code via reticulate when sent
---- from a python chunk.
-local slime_send_region_cmd = ':<C-u>call slime#send_op(visualmode(), 1)<CR>'
-slime_send_region_cmd = vim.api.nvim_replace_termcodes(slime_send_region_cmd, true, false, true)
-local function send_region()
-  -- if filetyps is not quarto, just send_region
-  if vim.bo.filetype ~= 'quarto' or vim.b['quarto_is_r_mode'] == nil then
-    vim.cmd('normal' .. slime_send_region_cmd)
-    return
-  end
-  if vim.b['quarto_is_r_mode'] == true then
-    vim.g.slime_python_ipython = 0
-    local is_python = require('otter.tools.functions').is_otter_language_context 'python'
-    if is_python and not vim.b['reticulate_running'] then
-      vim.fn['slime#send']('reticulate::repl_python()' .. '\r')
-      vim.b['reticulate_running'] = true
-    end
-    if not is_python and vim.b['reticulate_running'] then
-      vim.fn['slime#send']('exit' .. '\r')
-      vim.b['reticulate_running'] = false
-    end
-    vim.cmd('normal' .. slime_send_region_cmd)
-  end
-end
-
---- Insert code chunk of given language
---- Splits current chunk if already within a chunk
---- @param lang string
-local insert_code_chunk = function(lang)
-  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<esc>', true, false, true), 'n', true)
-  local keys
-  if is_code_chunk() then
-    keys = [[o```<cr><cr>```{]] .. lang .. [[}<esc>o]]
-  else
-    keys = [[o```{]] .. lang .. [[}<cr>```<esc>O]]
-  end
-  keys = vim.api.nvim_replace_termcodes(keys, true, false, true)
-  vim.api.nvim_feedkeys(keys, 'n', false)
-end
-
-local insert_py_chunk = function()
-  insert_code_chunk 'python'
-end
-
-local insert_bash_chunk = function()
-  insert_code_chunk 'bash'
-end
-
-
 local function new_terminal(lang)
   vim.cmd('vsplit term://' .. lang)
 end
@@ -97,14 +19,6 @@ end
 
 local function new_terminal_shell()
   new_terminal '$SHELL'
-end
-local function mark_terminal()
-  local job_id = vim.b.terminal_job_id
-  vim.print('job_id: ' .. job_id)
-end
-
-local function set_terminal()
-  vim.fn.call('slime#config', {})
 end
 
 -- ############################################
@@ -129,9 +43,6 @@ map("n", "<leader>wv", "<C-w>v", { desc = "create window vertical" })
 map("n", "<leader>cc", "gcc", { desc = "Toggle comment", remap = true })
 map("v", "<leader>cc", "gc", { desc = "Toggle comment", remap = true })
 
--- Code mappings
-map("n", "<leader>c<cr>", send_cell, { desc = "Send code cell" })
-map("v", "<leader>c<cr>", send_region, { desc = "Send code region" })
 
 map("n", "<leader>Tp", new_terminal_python, { desc = "New python terminal" })
 map("n", "<leader>Ti", new_terminal_ipython, { desc = "New ipython terminal" })
@@ -223,15 +134,6 @@ end
 -- if you only want these mappings for toggle term use term://*toggleterm#* instead
 vim.cmd('autocmd! TermOpen term://* lua set_terminal_keymaps()')
 
--- send code with ctrl+Enter
--- just like in e.g. RStudio
--- needs kitty (or other terminal) config:
--- map shift+enter send_text all \x1b[13;2u
--- map ctrl+enter send_text all \x1b[13;5u
-map("n", "<c-cr>", send_cell, { desc = "run code cell" })
-map("n", "<s-cr>", send_cell, { desc = "run code cell" })
-map("i", "<c-cr>", send_cell, { desc = "run code cell" })
-map("i", "<s-cr>", send_cell, { desc = "run code cell" })
 
 -- keep selection after indent/dedent
 map("v", "<", "<gv")
@@ -242,25 +144,10 @@ map("n", 'n', 'nzz')
 map("n", '<c-d>', '<c-d>zz')
 map("n", '<c-u>', '<c-u>zz')
 
-
--- notebook mappings
-
-map("n", "<leader>nE", function() require('otter').export(true) end, { desc = "Export quarto with overwrite" })
-map("n", "<leader>na", require 'otter'.activate, { desc = "Activate otter" })
-map("n", "<leader>nb", insert_bash_chunk, { desc = "Insert bash chunk" })
-map("n", "<leader>nd", require 'otter'.activate, { desc = "Deactivate otter" })
-map("n", "<leader>ne", require('otter').export, { desc = "Export quarto" })
-map("n", "<leader>nh", ":QuartoHelp ", { desc = "Quarto help" })
-map("n", "<leader>np", insert_py_chunk, { desc = "Insert python chunk" })
-map("n", "<leader>nq", ":QuartoActivate<cr>", { desc = "Activate quarto" })
-map("n", "<leader>nra", ":QuartoSendAll<cr>", { desc = "Quarto run all" })
-map("n", "<leader>nrb", ":QuartoSendBelow<cr>", { desc = "Quarto run below" })
-map("n", "<leader>nrr", ":QuartoSendAbove<cr>", { desc = "Quarto run above" })
-map("n", "<leader>nrp", ":lua require'quarto'.quartoPreview()<cr>", { desc = "Preview quarto" })
-map("n", "<leader>nrq", ":lua require'quarto'.quartoClosePreview()<cr>", { desc = "Quiet preview quarto" })
-map("n", "<leader>nM", function() require("nabla").toggle_virt() end, { desc = "Toggle math equations" })
-map('n', '<leader>ntm', mark_terminal, { desc = 'mark terminal' })
-map('n', '<leader>nts', set_terminal, { desc = 'set terminal' })
+-- zoekt mappings
+map("n", "<leader>zz", ":Zoekt -index_dir ./.zoekt", { desc = "Search with Zoekt" })
+map("n", "<leader>zr", ":ZoektRef<cr>", { desc = "Search references for the word under cursor with Zoekt" })
+map("n", "<leader>zd", ":ZoektDef<cr>", { desc = "Search references for the word under cursor with Zoekt" })
 
 -- todo comments mappings
 map("n", "<leader>tn", function() require("todo-comments").jump_next() end, { desc = "Next Todo Comment" })

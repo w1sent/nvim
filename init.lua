@@ -37,3 +37,4 @@ require("lazy").setup({
 })
 
 require("settings.mapping")
+require("settings.search").setup()
