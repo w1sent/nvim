@@ -26,6 +26,10 @@ o.listchars = {
 o.backup = false
 o.swapfile = false
 
+o.clipboard = "unnamedplus"
+o.formatoptions:remove "o"
+o.inccommand = "split"
+
 -- Performance
 o.history = 100
 o.redrawtime = 1500
