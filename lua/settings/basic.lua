@@ -1,0 +1,61 @@
+local global = vim.g
+local o = vim.opt
+
+-- NEOVIM Editor config
+o.number = true
+o.relativenumber = true
+o.clipboard = "unnamedplus"
+o.syntax = "on"
+o.autoindent = true
+o.cursorline = true
+o.expandtab = true
+o.shiftwidth = 2
+o.tabstop = 2
+o.encoding = "UTF-8"
+o.mouse = "a"
+o.wildmenu = true
+o.termguicolors = true
+
+o.listchars = {
+    tab = "┊ ",
+    trail = "·",
+    extends = "»",
+    precedes = "«",
+    nbsp = "×"
+}
+
+o.backup = false
+o.swapfile = false
+
+-- Performance
+o.history = 100
+o.redrawtime = 1500
+o.timeoutlen = 250 
+o.ttimeoutlen = 10
+o.updatetime = 100 
+
+-- persistent undo
+local undodir = vim.fn.stdpath("data") .. "/undo"
+o.undofile = true -- enable persistent undo
+o.undodir = undodir
+o.undolevels = 1000
+o.undoreload = 10000
+
+global.mapleader = " "
+
+vim.cmd([[
+      set completeopt=menuone,noinsert,noselect
+      highlight! default link CmpItemKind CmpItemMenuDefault
+    ]])
+
+-- Disable builtin plugins
+local disabled_built_ins = {
+    "2html_plugin", "getscript", "getscriptPlugin", "gzip", "logipat", "netrw", "netrwPlugin",
+    "netrwSettings", "netrwFileHandlers", "matchit", "tar", "tarPlugin", "rrhelper",
+    "spellfile_plugin", "vimball", "vimballPlugin", "zip", "zipPlugin", "tutor", "rplugin",
+    "synmenu", "optwin", "compiler", "bugreport", "ftplugin"
+}
+
+for _, plugin in pairs(disabled_built_ins) do
+    global["loaded_" .. plugin] = 1
+end
