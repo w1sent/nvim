@@ -98,7 +98,66 @@ end
 local function new_terminal_shell()
   new_terminal '$SHELL'
 end
+local function mark_terminal()
+  local job_id = vim.b.terminal_job_id
+  vim.print('job_id: ' .. job_id)
+end
 
+local function set_terminal()
+  vim.fn.call('slime#config', {})
+end
+
+local image = require 'image'
+local function clear_all_images()
+  local bufnr = vim.api.nvim_get_current_buf()
+  local images = image.get_images { buffer = bufnr }
+  for _, img in ipairs(images) do
+    img:clear()
+  end
+end
+
+local function get_image_at_cursor(buf)
+  local images = image.get_images { buffer = buf }
+  local row = vim.api.nvim_win_get_cursor(0)[1] - 1
+  for _, img in ipairs(images) do
+    if img.geometry ~= nil and img.geometry.y == row then
+      local og_max_height = img.global_state.options.max_height_window_percentage
+      img.global_state.options.max_height_window_percentage = nil
+      return img, og_max_height
+    end
+  end
+  return nil
+end
+
+local create_preview_window = function(img, og_max_height)
+  local buf = vim.api.nvim_create_buf(false, true)
+  local win_width = vim.api.nvim_get_option_value('columns', {})
+  local win_height = vim.api.nvim_get_option_value('lines', {})
+  local win = vim.api.nvim_open_win(buf, true, {
+    relative = 'editor',
+    style = 'minimal',
+    width = win_width,
+    height = win_height,
+    row = 0,
+    col = 0,
+    zindex = 1000,
+  })
+  vim.keymap.set('n', 'q', function()
+    vim.api.nvim_win_close(win, true)
+    img.global_state.options.max_height_window_percentage = og_max_height
+  end, { buffer = buf })
+  return { buf = buf, win = win }
+end
+
+local handle_zoom = function(bufnr)
+  local img, og_max_height = get_image_at_cursor(bufnr)
+  if img == nil then
+    return
+  end
+
+  local preview = create_preview_window(img, og_max_height)
+  image.hijack_buffer(img.path, preview.win, preview.buf)
+end
 
 -- ############################################
 -- Mappings
@@ -126,9 +185,9 @@ map("v", "<leader>cc", "gc", { desc = "Toggle comment", remap = true })
 map("n", "<leader>c<cr>", send_cell, { desc = "Send code cell" })
 map("v", "<leader>c<cr>", send_region, { desc = "Send code region" })
 
-map("n", "<leader>ctp", new_terminal_python, { desc = "New python terminal" })
-map("n", "<leader>cti", new_terminal_ipython, { desc = "New ipython terminal" })
-map("n", "<leader>cts", new_terminal_shell, { desc = "New shell terminal" })
+map("n", "<leader>Tp", new_terminal_python, { desc = "New python terminal" })
+map("n", "<leader>Ti", new_terminal_ipython, { desc = "New ipython terminal" })
+map("n", "<leader>Ts", new_terminal_shell, { desc = "New shell terminal" })
 
 vim.api.nvim_create_autocmd('LspAttach', {
   group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
@@ -235,63 +294,13 @@ map("n", '<c-u>', '<c-u>zz')
 
 
 -- image.nvim mappings
-local image = require 'image'
-local function clear_all_images()
-  local bufnr = vim.api.nvim_get_current_buf()
-  local images = image.get_images { buffer = bufnr }
-  for _, img in ipairs(images) do
-    img:clear()
-  end
-end
-
-local function get_image_at_cursor(buf)
-  local images = image.get_images { buffer = buf }
-  local row = vim.api.nvim_win_get_cursor(0)[1] - 1
-  for _, img in ipairs(images) do
-    if img.geometry ~= nil and img.geometry.y == row then
-      local og_max_height = img.global_state.options.max_height_window_percentage
-      img.global_state.options.max_height_window_percentage = nil
-      return img, og_max_height
-    end
-  end
-  return nil
-end
-
-local create_preview_window = function(img, og_max_height)
-  local buf = vim.api.nvim_create_buf(false, true)
-  local win_width = vim.api.nvim_get_option_value('columns', {})
-  local win_height = vim.api.nvim_get_option_value('lines', {})
-  local win = vim.api.nvim_open_win(buf, true, {
-    relative = 'editor',
-    style = 'minimal',
-    width = win_width,
-    height = win_height,
-    row = 0,
-    col = 0,
-    zindex = 1000,
-  })
-  vim.keymap.set('n', 'q', function()
-    vim.api.nvim_win_close(win, true)
-    img.global_state.options.max_height_window_percentage = og_max_height
-  end, { buffer = buf })
-  return { buf = buf, win = win }
-end
-
-local handle_zoom = function(bufnr)
-  local img, og_max_height = get_image_at_cursor(bufnr)
-  if img == nil then
-    return
-  end
-
-  local preview = create_preview_window(img, og_max_height)
-  image.hijack_buffer(img.path, preview.win, preview.buf)
-end
 
 map('n', '<leader>io', function()
   local bufnr = vim.api.nvim_get_current_buf()
   handle_zoom(bufnr)
 end, { buffer = true, desc = 'image open' })
-map('n', '<leader>ic', clear_all_images, { desc = 'image [c]lear' })
+map('n', '<leader>ic', clear_all_images, { desc = 'image clear' })
+map('n', '<leader>ii', ':PasteImage<cr>', { desc = 'insert image from clipboard' })
 
 
 -- notebook mappings
@@ -313,6 +322,8 @@ map("n", "<leader>nmi", ":MoltenInit<cr>", { desc = "Molten init" })
 map("v", "<leader>nmv", ":<C-u>MoltenEvaluateVisual<cr>", { desc = "Molten eval visual" })
 map("n", "<leader>nmr", ":MoltenReevaluateCell<cr>", { desc = "Molten re-eval cell" })
 map("n", "<leader>nM", function() require("nabla").toggle_virt() end, { desc = "Toggle math equations" })
+map('n', '<leader>ntm', mark_terminal, { desc = 'mark terminal' })
+map('n', '<leader>nts', set_terminal, { desc = 'set terminal' })
 
 -- todo comments mappings
 map("n", "<leader>tn", function() require("todo-comments").jump_next() end, { desc = "Next Todo Comment" })
@@ -325,17 +336,19 @@ map("n", "<leader>ta", ":TodoTelescope keywords=TODO,FIX,FIXME<cr>", { desc = "T
 wk.add({
   {
     { "<leader>c",  group = "code/lsp actions" },
-    { "<leader>d",  group = "debug" },
     { "<leader>dt", group = "test" },
     { "<leader>e",  group = "edit" },
-    { "<leader>f",  group = "Telescope" },
+    { "<leader>f",  group = "telescope" },
     { "<leader>h",  group = "help" },
     { "<leader>hc", group = "conceal" },
     { "<leader>i",  group = "image" },
     { "<leader>cd", group = "diagnostics" },
     { "<leader>n",  group = "notebook" },
+    { "<leader>nm", group = "molten" },
     { "<leader>nr", group = "run" },
-    { "<leader>t",  group = "Todo" },
+    { "<leader>nt", group = "terminal" },
+    { "<leader>t",  group = "todo" },
+    { "<leader>T",  group = "terminal" },
     { "<leader>w",  group = "windows" },
   }
 }, { mode = 'n' })
