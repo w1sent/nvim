@@ -20,10 +20,10 @@ map("n", "<leader>c", "gcc", { desc = "Toggle comment", remap = true })
 map("v", "<leader>c", "gc", { desc = "Toggle comment", remap = true })
 
 -- LSP-Functions
-map("n", "<leader>d", ":vim.diagnostic.open_float()<CR>", { desc = "Show diagnostic", remap = true })
-map("n", "<leader>k", ":vim.buf.hover()<CR>", { desc = "Show documentation", remap = true })
-map("n", "<leader>a", ":vim.buf.code_action()<CR>", { desc = "perform code action", remap = true })
-map("n", "<leader>r", ":vim.buf.rename()<CR>", { desc = "rename symbol", remap = true })
+map("n", "<leader>d", "vim.diagnostic.open_float()<CR>", { desc = "Show diagnostic", remap = true })
+map("n", "<leader>k", "vim.buf.hover()<CR>", { desc = "Show documentation", remap = true })
+map("n", "<leader>a", "vim.buf.code_action()<CR>", { desc = "perform code action", remap = true })
+map("n", "<leader>r", "vim.buf.rename()<CR>", { desc = "rename symbol", remap = true })
 
 -- Terminal
 function _G.set_terminal_keymaps()
