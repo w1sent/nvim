@@ -224,7 +224,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
     lspmap("<leader>cD", "<cmd>Telescope diagnostics<cr>", "Pick diagnostics")
     lspmap("<leader>cS", "<cmd>Telescope lsp_document_symbols<cr>", "Pick symbols is document")
     lspmap("<leader>cR", "<cmd>Telescope lsp_references<cr>", "Pick references")
-    lspmap("<leader>ca", "<cmd>Telescope lsp_code_actions<cr>", "Pick code actions")
+    lspmap("<leader>ca", vim.lsp.buf.code_action, "Pick code actions")
     lspmap("<leader>cI", "<cmd>Telescope lsp_incoming_calls<cr>", "Pick incoming calls")
     lspmap("<leader>cO", "<cmd>Telescope lsp_outgoing_calls<cr>", "Pick outgoing calls")
   end,
@@ -243,8 +243,10 @@ map("n", "<leader>fl", "<cmd>Telescope loclist<cr>", { desc = "Find loclist" })
 map("n", "<leader>fq", "<cmd>Telescope quickfix<cr>", { desc = "Find quickfix" })
 map("n", "<leader>fr", "<cmd>Telescope resume<cr>", { desc = "Resume last telescope" })
 map("n", "<leader>ft", "<cmd>Telescope treesitter<cr>", { desc = "Find treesitter" })
+map("n", "<leader>fT", "<cmd>TodoTelescope<cr>", { desc = "List TODOs" })
 map("n", "<leader>fG", "<cmd>Telescope grep_string<cr>", { desc = "Find string under cursor" })
-map("n", "<leader>fc", "<cmd>Telescope commands <cr>", { desc = "Pick command" })
+map("n", "<leader>fc", "<cmd>Telescope commands <cr>", { desc = "Pick neovim command" })
+map("n", "<leader>fC", "<cmd>Telescope<cr>", { desc = "Telescope Commands" })
 map("n", "<leader>fm", "<cmd>Telescope man_pages<cr>", { desc = "Find manpage" })
 map("n", "<leader>fs", "<cmd>Telescope spell_suggest<cr>", { desc = "Find spelling suggestions" })
 map("v", "<leader>fg", "<cmd>Telescope grep_string<cr>", { desc = "Find string in files" })
@@ -293,16 +295,6 @@ map("n", '<c-d>', '<c-d>zz')
 map("n", '<c-u>', '<c-u>zz')
 
 
--- image.nvim mappings
-
-map('n', '<leader>io', function()
-  local bufnr = vim.api.nvim_get_current_buf()
-  handle_zoom(bufnr)
-end, { buffer = true, desc = 'image open' })
-map('n', '<leader>ic', clear_all_images, { desc = 'image clear' })
-map('n', '<leader>ii', ':PasteImage<cr>', { desc = 'insert image from clipboard' })
-
-
 -- notebook mappings
 
 map("n", "<leader>nE", function() require('otter').export(true) end, { desc = "Export quarto with overwrite" })
@@ -318,9 +310,6 @@ map("n", "<leader>nrb", ":QuartoSendBelow<cr>", { desc = "Quarto run below" })
 map("n", "<leader>nrr", ":QuartoSendAbove<cr>", { desc = "Quarto run above" })
 map("n", "<leader>nrp", ":lua require'quarto'.quartoPreview()<cr>", { desc = "Preview quarto" })
 map("n", "<leader>nrq", ":lua require'quarto'.quartoClosePreview()<cr>", { desc = "Quiet preview quarto" })
-map("n", "<leader>nmi", ":MoltenInit<cr>", { desc = "Molten init" })
-map("v", "<leader>nmv", ":<C-u>MoltenEvaluateVisual<cr>", { desc = "Molten eval visual" })
-map("n", "<leader>nmr", ":MoltenReevaluateCell<cr>", { desc = "Molten re-eval cell" })
 map("n", "<leader>nM", function() require("nabla").toggle_virt() end, { desc = "Toggle math equations" })
 map('n', '<leader>ntm', mark_terminal, { desc = 'mark terminal' })
 map('n', '<leader>nts', set_terminal, { desc = 'set terminal' })
@@ -341,10 +330,8 @@ wk.add({
     { "<leader>f",  group = "telescope" },
     { "<leader>h",  group = "help" },
     { "<leader>hc", group = "conceal" },
-    { "<leader>i",  group = "image" },
     { "<leader>cd", group = "diagnostics" },
     { "<leader>n",  group = "notebook" },
-    { "<leader>nm", group = "molten" },
     { "<leader>nr", group = "run" },
     { "<leader>nt", group = "terminal" },
     { "<leader>t",  group = "todo" },
