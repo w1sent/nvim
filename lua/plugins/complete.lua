@@ -8,6 +8,7 @@ return {
     "hrsh7th/cmp-path",
     "hrsh7th/cmp-cmdline",
     "hrsh7th/nvim-cmp",
+    "jmbuhr/otter.nvim"
   },
   opts = {},
   config = function()
@@ -35,6 +36,7 @@ return {
       }, {
         { name = 'buffer' },
         { name = 'path' },
+        { name = 'otter' },
       }),
     })
 
@@ -54,6 +56,5 @@ return {
       }),
       matching = { disallow_symbol_nonprefix_matching = false }
     })
-
   end
 }
