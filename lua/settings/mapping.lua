@@ -20,10 +20,12 @@ map("n", "<leader>c", "gcc", { desc = "Toggle comment", remap = true })
 map("v", "<leader>c", "gc", { desc = "Toggle comment", remap = true })
 
 -- LSP-Functions
-map("n", "<leader>d", "vim.diagnostic.open_float()<CR>", { desc = "Show diagnostic", remap = true })
-map("n", "<leader>k", "vim.buf.hover()<CR>", { desc = "Show documentation", remap = true })
-map("n", "<leader>a", "vim.buf.code_action()<CR>", { desc = "perform code action", remap = true })
-map("n", "<leader>r", "vim.buf.rename()<CR>", { desc = "rename symbol", remap = true })
+map("n", "<leader>D", ":lua vim.lsp.buf.declaration()<CR>", { desc = "Jump to declaration", remap = true })
+map("n", "<leader>d", ":lua vim.lsp.buf.definition()<CR>", { desc = "Jump to definition", remap = true })
+map("n", "<leader>k", ":lua vim.lsp.buf.hover()<CR>", { desc = "Show documentation", remap = true })
+map("n", "<leader>a", ":lua vim.lsp.buf.code_action()<CR>", { desc = "perform code action", remap = true })
+map("n", "<leader>r", ":lua vim.lsp.buf.rename()<CR>", { desc = "rename symbol", remap = true })
+map("n", "<leader>F", ":lua conform.format()<CR>", { desc = "Format document", remap = true })
 
 -- Terminal
 function _G.set_terminal_keymaps()

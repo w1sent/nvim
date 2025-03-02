@@ -4,7 +4,6 @@ local o = vim.opt
 -- NEOVIM Editor config
 o.number = true
 o.relativenumber = true
-o.clipboard = "unnamedplus"
 o.syntax = "on"
 o.autoindent = true
 o.cursorline = true
@@ -17,11 +16,11 @@ o.wildmenu = true
 o.termguicolors = true
 
 o.listchars = {
-    tab = "┊ ",
-    trail = "·",
-    extends = "»",
-    precedes = "«",
-    nbsp = "×"
+  tab = "┊ ",
+  trail = "·",
+  extends = "»",
+  precedes = "«",
+  nbsp = "×"
 }
 
 o.backup = false
@@ -30,9 +29,9 @@ o.swapfile = false
 -- Performance
 o.history = 100
 o.redrawtime = 1500
-o.timeoutlen = 250 
+o.timeoutlen = 250
 o.ttimeoutlen = 10
-o.updatetime = 100 
+o.updatetime = 100
 
 -- persistent undo
 local undodir = vim.fn.stdpath("data") .. "/undo"
@@ -50,12 +49,12 @@ vim.cmd([[
 
 -- Disable builtin plugins
 local disabled_built_ins = {
-    "2html_plugin", "getscript", "getscriptPlugin", "gzip", "logipat", "netrw", "netrwPlugin",
-    "netrwSettings", "netrwFileHandlers", "matchit", "tar", "tarPlugin", "rrhelper",
-    "spellfile_plugin", "vimball", "vimballPlugin", "zip", "zipPlugin", "tutor", "rplugin",
-    "synmenu", "optwin", "compiler", "bugreport", "ftplugin"
+  "2html_plugin", "getscript", "getscriptPlugin", "gzip", "logipat", "netrw", "netrwPlugin",
+  "netrwSettings", "netrwFileHandlers", "matchit", "tar", "tarPlugin", "rrhelper",
+  "spellfile_plugin", "vimball", "vimballPlugin", "zip", "zipPlugin", "tutor", "rplugin",
+  "synmenu", "optwin", "compiler", "bugreport", "ftplugin"
 }
 
 for _, plugin in pairs(disabled_built_ins) do
-    global["loaded_" .. plugin] = 1
+  global["loaded_" .. plugin] = 1
 end
