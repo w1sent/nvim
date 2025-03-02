@@ -123,7 +123,6 @@ return {
       return vim.fn.has 'win32' ~= 1
     end,
     dependencies = {
-      'leafo/magick', -- that's a lua rock
     },
     config = function()
       -- Requirements
