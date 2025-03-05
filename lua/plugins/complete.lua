@@ -8,7 +8,9 @@ return {
     "hrsh7th/cmp-path",
     "hrsh7th/cmp-cmdline",
     "hrsh7th/nvim-cmp",
-    "jmbuhr/otter.nvim"
+    "f3fora/cmp-spell",
+    "ray-x/cmp-treesitter",
+    "jmbuhr/otter.nvim",
   },
   opts = {},
   config = function()
@@ -37,6 +39,8 @@ return {
         { name = 'buffer' },
         { name = 'path' },
         { name = 'otter' },
+        { name = 'spell' },
+        { name = 'treesitter', keyword_length = 5, max_item_count = 3 },
       }),
     })
 
